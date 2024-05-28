@@ -46,8 +46,7 @@ public class FormaPgmt {
         double valorParcelado = valorFinal/3;
         System.out.printf("O valor total a ser pago por esse produto é de %.2f\nFicando assim 3x de: %.2f", valorFinal, valorParcelado);
     }
-    public static int nextInt() {
-        // TODO Auto-generated method stub
+    public static int nextInt(){
         throw new UnsupportedOperationException("Unimplemented method 'nextInt'");
     }
 }

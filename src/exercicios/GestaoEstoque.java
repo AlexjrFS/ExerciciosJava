@@ -37,45 +37,73 @@ class Estoque{
         System.out.println("Código: " + prodId + " | Produto: " + nome + " | Preço R$ " + preco + " | Quantidade no estoque: " + qntdInicial);
     }
 }
+class Carrinho{
+    private ArrayList<Estoque> itens = new ArrayList<>();
+    private ArrayList<Integer> quantidades = new ArrayList<>();
+    public void adicionarItem(Estoque produto, int quantidade){
+        itens.add(produto);
+        quantidades.add(quantidade);
+    }
+    public void mostrarCarrinho(){
+        for(int i = 0; i < itens.size(); i++){
+            Estoque produto = itens.get(i);
+            int quantidade = quantidades.get(i);
+            System.out.println("Produto: " + produto.getNome() + " | Quantidade: " + quantidade + " | Preço unitário: " + produto.getPreco() + " | Preço total: " + (produto.getPreco() * quantidade));
+        }
+    }
+    public double calcularTotal(){
+        double total = 0;
+        for(int i = 0; i < itens.size(); i++){
+            Estoque produto = itens.get(i);
+            int quantidade = quantidades.get(i);
+            total += produto.getPreco() * quantidade;
+        }
+        return total;
+    }
+    public void esvaziarCarrinho(){
+        itens.clear();
+        quantidades.clear();
+    }
+}
 public class GestaoEstoque{
     private static ArrayList<Estoque> estoque = new ArrayList<>();
     private static Carrinho carrinho = new Carrinho();
+    private static Scanner scanner = new Scanner(System.in).useLocale(Locale.US);
     public static void main(String[] args){
         try{
-        Scanner scanner = new Scanner(System.in).useLocale(Locale.US);
-        int opcao;
-        do{
-            System.out.println("\nEstoque:");
-            System.out.println("1. Adicionar novo produto ao estoque");
-            System.out.println("2. Atualizar preço do produto");
-            System.out.println("3. Visualizar estoque");
-            System.out.println("4. Atualizar quantidade do produto no estoque");
-            System.out.println("5. Adicionar / Visualizar itens do carrinho");
-            System.out.println("6. Vender produto");
-            System.out.println("7. Deletar produto");
-            System.out.println("8. Sair");
-            System.out.print("Selecione uma das opções do sistema: ");
-            opcao = scanner.nextInt();
-            scanner.nextLine();
-            switch(opcao){
-                case 1:adicionarNovoProduto(scanner);break;
-                case 2:atualizarPrecoProduto(scanner);break;
-                case 3:listaDeEstoque();break;
-                case 4:atualizarQntdEstoque(scanner);break;
-                case 5:carrinhoProdutos(scanner);break;
-                case 6:venderProduto(scanner);break;
-                case 7:deletarProduto(scanner);break;
-                case 8:System.out.println("Saindo do sistema, até mais!");break;
-                default:System.out.println("Opção inválida!");
-            }
-        } while(opcao != 8);
-        scanner.close();
+            int opcao;
+            do{
+                System.out.println("\nEstoque:");
+                System.out.println("1. Adicionar novo produto ao estoque");
+                System.out.println("2. Atualizar preço do produto");
+                System.out.println("3. Visualizar estoque");
+                System.out.println("4. Atualizar quantidade do produto no estoque");
+                System.out.println("5. Adicionar / Visualizar itens do carrinho");
+                System.out.println("6. Vender produto");
+                System.out.println("7. Deletar produto");
+                System.out.println("8. Sair");
+                System.out.print("Selecione uma das opções do sistema: ");
+                opcao = scanner.nextInt();
+                scanner.nextLine();
+                switch(opcao){
+                    case 1:adicionarNovoProduto();break;
+                    case 2:atualizarPrecoProduto();break;
+                    case 3:listaDeEstoque();break;
+                    case 4:atualizarQntdEstoque();break;
+                    case 5:carrinhoProdutos();break;
+                    case 6:venderProduto();break;
+                    case 7:deletarProduto();break;
+                    case 8:System.out.println("Saindo do sistema, até mais!");break;
+                    default:System.out.println("Opção inválida!");
+                }
+            } 
+            while (opcao != 8);
+        } 
+        catch(InputMismatchException e){
+            System.err.println("Escolha uma das opções acima, a partir de seu número!");
+        }
     }
-    catch(InputMismatchException e){
-        System.err.println("Escolha uma das opções acima, apartir de seu numero!");
-    }
-    }
-    private static void adicionarNovoProduto(Scanner scanner){
+    private static void adicionarNovoProduto(){
         System.out.print("Insira o nome deste produto: ");
         String nome = scanner.nextLine();
         System.out.print("Insira o preço do produto: ");
@@ -86,7 +114,7 @@ public class GestaoEstoque{
         estoque.add(novoProduto);
         System.out.println("Produto de código " + novoProduto.getProdId() + " adicionado com sucesso!");
     }
-    private static void deletarProduto(Scanner scanner){
+    private static void deletarProduto(){
         System.out.println("Insira o código do produto no qual deseja deletar:");
         int codProd = scanner.nextInt();
         for(int i = 0; i < estoque.size(); i++){
@@ -94,12 +122,15 @@ public class GestaoEstoque{
             if(produto.getProdId() == codProd){
                 estoque.remove(i);
                 System.out.println("Produto " + produto.getNome() + " removido com sucesso!");
+                return;
             }
         }
+        System.out.println("Produto não encontrado no estoque.");
     }
-    private static void carrinhoProdutos(Scanner scanner){
+    private static void carrinhoProdutos(){
         System.out.println("1. Adicionar novo produto ao carrinho\n2. Visualizar itens no carrinho");
         int fazerCarrinho = scanner.nextInt();
+        scanner.nextLine();
         if(fazerCarrinho == 1){
             System.out.println("Insira o código do produto para ser adicionado ao carrinho:");
             int codProd = scanner.nextInt();
@@ -108,7 +139,7 @@ public class GestaoEstoque{
             scanner.nextLine();
             Estoque produtoSelecionado = null;
             for(Estoque produto : estoque){
-                if (produto.getProdId() == codProd){
+                if(produto.getProdId() == codProd){
                     produtoSelecionado = produto;
                     break;
                 }
@@ -117,19 +148,26 @@ public class GestaoEstoque{
                 if(quantidade <= produtoSelecionado.getQntdInicial()){
                     carrinho.adicionarItem(produtoSelecionado, quantidade);
                     produtoSelecionado.setQntdInicial(produtoSelecionado.getQntdInicial() - quantidade);
-                    System.out.println("Produto adicionado ao carrinho com sucesso!");                   
-                    System.out.println("\nDeseja finalizar a compra?\n1. Finalizar compra\n2. Continar comprando");
+                    System.out.println("Produto adicionado ao carrinho com sucesso!");
+                    System.out.println("\nDeseja finalizar a compra?\n1. Finalizar compra\n2. Continuar comprando");
                     int respostas = scanner.nextInt();
                     if(respostas == 1){
-                        opcoesDePgmt();
-                       //finalizarCompra();
-                    }
+                        double totalFinal = opcoesDePgmt();
+                        System.out.println("Deseja confirmar sua compra?\n1. Sim\n2. Não");
+                        int escolha = scanner.nextInt();
+                        if(escolha == 1){
+                        finalizarCompra(totalFinal);
+                        }
+                        else{
+                            return;
+                        }
+                    } 
                     else if(respostas == 2){
                         return;
-                    }
+                    } 
                     else{
                         System.out.println("Insira uma das opções.");
-                    }                  
+                    }
                 } 
                 else{
                     System.out.println("Quantidade solicitada não disponível em estoque.");
@@ -138,35 +176,81 @@ public class GestaoEstoque{
             else{
                 System.out.println("Produto não encontrado.");
             }
-        }
+        } 
         else{
             carrinho.mostrarCarrinho();
             System.out.println("Valor total: R$ " + carrinho.calcularTotal());
-            System.out.println("\nDeseja finalizar a compra?\n1. Finalizar compra\n2. Continar comprando");
+            System.out.println("\nDeseja finalizar a compra?\n1. Finalizar compra\n2. Continuar comprando");
             int respostas = scanner.nextInt();
             if(respostas == 1){
-               finalizarCompra();
-            }
+                double totalFinal = opcoesDePgmt();
+                finalizarCompra(totalFinal);
+            } 
             else if(respostas == 2){
                 return;
-            }
+            } 
             else{
                 System.out.println("Insira uma das opções.");
             }
         }
     }
-    private static void finalizarCompra(){
-        double total = carrinho.calcularTotal();
-        if(total>0){
-        System.out.println("Compra realizada com sucesso, no valor de R$ " + total);
-        carrinho.esvaziarCarrinho();
-        }
+    private static void finalizarCompra(double total){
+        if(total > 0){
+            System.out.println("Compra realizada com sucesso, no valor de R$ " + total);
+            carrinho.esvaziarCarrinho();
+        } 
         else{
             System.out.println("Nenhum produto foi inserido no carrinho.");
-        }    
+        }
     }
-    private static void venderProduto(Scanner scanner){
-        System.out.print("Envie o código do produto que foi vendido: ");
+    private static double opcoesDePgmt(){
+        System.out.println("Escolha uma forma de pagamento:");
+        System.out.println("1. Dinheiro ou Pix.");
+        System.out.println("2. Cartão de débito.");
+        System.out.println("3. Cartão de crédito à vista.");
+        System.out.println("4. Cartão de crédito em duas vezes.");
+        System.out.println("5. Cartão de crédito em três ou mais vezes.");
+        System.out.print("Digite sua escolha:");
+        int formaEscolhida = scanner.nextInt();
+        double total = carrinho.calcularTotal();
+        switch(formaEscolhida){
+            case 1:return dinheiroPix(total);
+            case 2:return cartaoDebito(total);
+            case 3:return cartaoCreditoaVista(total);
+            case 4:return cartaoCreditoDuasVezes(total);
+            case 5:return cartaoCreditoTresOuMais(total);
+            default:System.out.println("Escolha uma forma de pagamento válida!");
+            return total;
+        }
+    }
+    private static double dinheiroPix(double total){
+        total = total - (total * 0.15);
+        System.out.printf("O valor total a ser pago por esse produto é de %.2f\n", total);
+        return total;
+    }
+    private static double cartaoDebito(double total){
+        total = total - (total * 0.12);
+        System.out.printf("O valor total a ser pago por esse produto é de %.2f\n", total);
+        return total;
+    }
+    private static double cartaoCreditoaVista(double total){
+        total = total - (total * 0.10);
+        System.out.printf("O valor total a ser pago por esse produto é de %.2f\n", total);
+        return total;
+    }
+    private static double cartaoCreditoDuasVezes(double total){
+        double totalP = total / 2.0;
+        System.out.printf("O valor total a ser pago por esse produto é de %.2f\nFicando assim 2x de: %.2f\n", total, totalP);
+        return total;
+    }
+    private static double cartaoCreditoTresOuMais(double total){
+        total = total + (total * 0.10);
+        double totalP = total / 3.0;
+        System.out.printf("O valor total a ser pago por esse produto é de %.2f\nFicando assim 3x de: %.2f\n", total, totalP);
+        return total;
+    }
+    private static void venderProduto(){
+        System.out.print("Insira o código do produto que deseja vender: ");
         int codProd = scanner.nextInt();
         scanner.nextLine();
         Estoque produtoVendido = null;
@@ -177,106 +261,66 @@ public class GestaoEstoque{
             }
         }
         if(produtoVendido != null){
-            System.out.print("Quantidade vendida: ");
+            System.out.print("Insira a quantidade vendida: ");
             int qntdVendida = scanner.nextInt();
             if(qntdVendida <= produtoVendido.getQntdInicial()){
                 produtoVendido.setQntdInicial(produtoVendido.getQntdInicial() - qntdVendida);
-               double valorVenda =  produtoVendido.setPreco(produtoVendido.getPreco() * qntdVendida);
+                double valorVenda = produtoVendido.getPreco() * qntdVendida;
                 System.out.println("Venda registrada com sucesso, no valor total de R$ " + valorVenda);
             } 
             else{
-                System.out.println("Não há quantidade suficiente em estoque para esta venda.");
+                System.out.println("Quantidade solicitada não disponível em estoque.");
             }
         } 
         else{
             System.out.println("Produto não encontrado.");
         }
     }
-    private static void atualizarPrecoProduto(Scanner scanner){
-        System.out.print("Insira o código do produto para atualizar: ");
-        int prodId = scanner.nextInt();
+    private static void atualizarPrecoProduto(){
+        System.out.print("Envie o código do produto que deseja atualizar o preço: ");
+        int codProd = scanner.nextInt();
         scanner.nextLine();
+        Estoque produtoSelecionado = null;
         for(Estoque produto : estoque){
-            if(produto.getProdId() == prodId){
-                System.out.print("Novo preço do produto: ");
-                double novoPreco = scanner.nextDouble();
-                produto.setPreco(novoPreco);
-                System.out.println("Preço do produto atualizado com sucesso!");
-                return;
+            if(produto.getProdId() == codProd){
+                produtoSelecionado = produto;
+                break;
             }
         }
-        System.out.println("Produto não encontrado no estoque.");
-    }
-    private static void atualizarQntdEstoque(Scanner scanner){
-        System.out.print("Insira o código do produto para atualizar: ");
-        int prodId = scanner.nextInt();
-        scanner.nextLine();
-        for(Estoque produto : estoque){
-            if(produto.getProdId() == prodId){
-                System.out.print("Quantidade adicionada ao estoque: ");
-                int qntdAdd = scanner.nextInt();
-                produto.setQntdInicial(produto.getQntdInicial() + qntdAdd);
-                System.out.println("Quantidade atualizada com sucesso!, foram adicionados " + qntdAdd);
-                return;
-            }
-        }
-        System.out.println("Produto não encontrado no estoque.");
-    }
-    private static void listaDeEstoque(){
-        if(estoque.isEmpty()){
-            System.out.println("Não há produtos no estoque.");
+        if(produtoSelecionado != null){
+            System.out.print("Insira o novo preço do produto: ");
+            double novoPreco = scanner.nextDouble();
+            produtoSelecionado.setPreco(novoPreco);
+            System.out.println("Preço do produto atualizado com sucesso!");
         } 
         else{
-            System.out.println("Lista de Produtos no Estoque:");
-            for(Estoque produto : estoque) {
-                produto.displayProduto();
-            }
+            System.out.println("Produto não encontrado.");
         }
     }
-    private static void opcoesDePgmt(){
-        Scanner formaPgmt = new Scanner(System.in);
-            System.out.println("Escolha uma forma de pagamento:");
-            System.out.println("1. Dinheiro ou Pix.");
-            System.out.println("2. Cartão de débito.");
-            System.out.println("3. Cartão de crédito à vista.");
-            System.out.println("4. Cartão de crédito em duas vezes.");
-            System.out.println("5. Cartão de crédito em três ou mais vezes.");
-            System.out.print("Digite sua escolha:");
-            int formaEscolhida = formaPgmt.nextInt();
-            switch(formaEscolhida){
-                case 1:dinheiroPix();break;
-                case 2:cartaoDebito();break;
-                case 3:cartaoCreditoaVista();break;
-                case 4:cartaoCreditoDuasVezes();break;
-                case 5:cartaoCreditoTresOuMais();break;
-            default:System.out.println("Escolha uma forma de pagamento válida!");break;
+    private static void atualizarQntdEstoque(){
+        System.out.print("Envie o código do produto que deseja atualizar a quantidade em estoque: ");
+        int codProd = scanner.nextInt();
+        scanner.nextLine();
+        Estoque produtoSelecionado = null;
+        for(Estoque produto : estoque){
+            if(produto.getProdId() == codProd){
+                produtoSelecionado = produto;
+                break;
             }
+        }
+        if(produtoSelecionado != null){
+            System.out.print("Insira a nova quantidade do produto em estoque: ");
+            int novaQntd = scanner.nextInt();
+            produtoSelecionado.setQntdInicial(novaQntd);
+            System.out.println("Quantidade do produto em estoque atualizada com sucesso!");
+        } 
+        else{
+            System.out.println("Produto não encontrado.");
+        }
     }
-    private static void dinheiroPix(){
-        double total = carrinho.calcularTotal() - (carrinho.calcularTotal() * 0.15 );
-        System.out.printf("O valor total a ser pago por esse produto é de %.2f\n", total);
-        return;
-    }
-    private static void cartaoDebito(){
-        double total = carrinho.calcularTotal() - (carrinho.calcularTotal() * 0.12 );
-        System.out.printf("O valor total a ser pago por esse produto é de %.2f\n", total);
-        return;
-    }
-    private static void cartaoCreditoaVista(){
-        double total = carrinho.calcularTotal() - (carrinho.calcularTotal() * 0.10 );
-        System.out.printf("O valor total a ser pago por esse produto é de %.2f\n", total);
-        return;
-    }
-    private static void cartaoCreditoDuasVezes(){
-        double total = carrinho.calcularTotal();
-        double totalP = carrinho.calcularTotal() / 2.0;
-        System.out.printf("O valor total a ser pago por esse produto é de %.2f\nFicando assim 2x de: %.2f\n", total, totalP);
-        return;
-    }
-    private static void cartaoCreditoTresOuMais(){
-        double total = carrinho.calcularTotal() + (carrinho.calcularTotal() * 0.10 );
-        double totalP = carrinho.calcularTotal() / 3.0;
-        System.out.printf("O valor total a ser pago por esse produto é de %.2f\nFicando assim 3x de: %.2f\n", total, totalP);
-        return;
+    private static void listaDeEstoque(){
+        for(Estoque produto : estoque){
+            produto.displayProduto();
+        }
     }
 }
